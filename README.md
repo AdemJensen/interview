@@ -143,6 +143,22 @@ int* const function7();     // 返回一个指向变量的常指针，使用：i
     2. 为避免对同一对象进行赋值操作；
     3. 在实现一些数据结构时，如 `list`。
 
+> 译注：什么是对象的链式引用？
+>
+> ```cpp
+> class A {
+>   const A* fun() {
+>     return this;
+>   }
+> }
+> 
+> // somewhere else
+> const A* a;
+> a.fun().fun().fun()	// Chained call
+> ```
+>
+> 
+
 ### inline 内联函数
 
 #### 特征
@@ -152,6 +168,21 @@ int* const function7();     // 返回一个指向变量的常指针，使用：i
 * 相当于宏，却比宏多了类型检查，真正具有函数特性；
 * 编译器一般不内联包含循环、递归、switch 等复杂操作的内联函数；
 * 在类声明中定义的函数，除了虚函数的其他函数都会自动隐式地当成内联函数。
+
+> 译注1：函数的执行过程
+>
+> 1. 函数的定义阶段：开空间，把空间地址与函数名称对应，然后把函数代码放到空间中
+> 2. 函数的执行阶段：通过名字找空间，形参赋值，函数内部代码预解析，然后执行代码
+>
+> 参考资料：https://blog.csdn.net/hasakizzz66/article/details/107900941
+>
+> 关于函数执行压栈的知识：https://blog.csdn.net/wangyezi19930928/article/details/16921927
+>
+> 
+>
+> 译注2：一个成员函数能否同时被inline和virtual修饰？
+>
+> 可以，但是inline不会生效。因为inline是编译期间进行内联，而virtual是运行时才能确定调用的具体函数，因此二者在逻辑上是悖逆的。
 
 #### 使用
 
@@ -244,12 +275,14 @@ int main()
 
 	// 因为Base有虚析构函数（virtual ~Base() {}），所以 delete 时，会先调用派生类（Derived）析构函数，再调用基类（Base）析构函数，防止内存泄漏。
 	delete ptr;
-	ptr = nullptr;
+	ptr = nullptr;	// 防止野指针
 
 	system("pause");
 	return 0;
 } 
 ```
+
+> 译注：关于野指针的危害：对象销毁后，指针指向的地址可能被重新分配，此时无法通过 `ptr == nullptr` 的方式判断当前指针是否有效。
 
 ### volatile
 
@@ -283,6 +316,8 @@ assert( p != NULL );    // assert 不可用
 ### #pragma pack(n)
 
 设定结构体、联合以及类成员变量以 n 字节方式对齐
+
+> 内存对齐的知识：https://zhuanlan.zhihu.com/p/30007037
 
 #pragma pack(n) 使用
 
@@ -2407,7 +2442,7 @@ TCP 有限状态机图片
 标准格式：
 
 * `协议类型:[//服务器地址[:端口号]][/资源层级UNIX文件路径]文件名[?查询][#片段ID]`
-    
+
 完整格式：
 
 * `协议类型:[//[访问资源需要的凭证信息@]服务器地址[:端口号]][/资源层级UNIX文件路径]文件名[?查询][#片段ID]`
